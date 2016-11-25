@@ -1,0 +1,19 @@
+import requests
+import re
+import time
+f=open('result.html', 'w')
+f.write('<!DOCTYPE html>\n')
+f.write('<html><head><meta http-equiv="Content-Type" content="text/html" charset=UTF-8"></head><body><ul>')
+now=int(time.time())*1000
+r=requests.get('https://api.meetup.com/2/concierge?key=7a2fe1b615f597d6156454c1c6c&sign=true&photo-host=public&country=us&city=Boston&category_id=34&state=MA')
+zag=re.findall(r'"name":"([\w\ \(\)\:]+)","id":"[\w ]+","time"', r.text)
+ad=re.findall(r'"address_1":"([\w\ \.\&]+)"', r.text)
+tim=re.findall(r'"name":"[\w\ \(\)\:]+","id":"[\w ]+","time":([\d]+)', r.text)
+for i in range(7):
+    f.write('<li>' + str(i) + 'day - '+ str(i+1) +' day \n<ul>\n')
+    for j in range(len(zag)):
+        if (int(tim[j])<((i+1)*86400000+now)) and (int(tim[j])>(i*86400000+now)):
+            date=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(float(tim[j])/1000))
+            f.write('<li>' + str(date) + ',        ' + str(zag[j]) + ',         ' + str(ad[j]) + '</li>\n')
+    f.write('</ul></li>\n')
+f.write('</ul></body></html>')
